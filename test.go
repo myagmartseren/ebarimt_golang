@@ -2,7 +2,8 @@ package main
 
 import (
 	"fmt"
-	"posapi"
+
+	posapi "github.com/myagmartseren/posapi_golang"
 )
 
 func main() {
