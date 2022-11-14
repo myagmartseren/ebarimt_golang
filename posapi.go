@@ -1,4 +1,4 @@
-package main
+package posapi
 
 /*
 #include <stdlib.h>
@@ -25,11 +25,11 @@ type PosAPI struct {
 	mux             sync.Mutex
 }
 
-func main() {
-	lib, err := dl.Open("./x64/libssl.so.1.0.0", dl.RTLD_LAZY)
+func Init() (*PosAPI, error) {
+	lib, err := dl.Open("libssl.so.1.0.0", dl.RTLD_LAZY)
 	if err != nil {
 		fmt.Println("err", err.Error())
-		return
+		return nil, err
 	}
 
 	var checkAPIC func() *C.char
@@ -50,17 +50,37 @@ func main() {
 	var sendDataC func() *C.char
 	lib.Sym("sendData", &sendDataC)
 
-	o := &PosAPI{
-		Lib:       lib,
-		checkAPIC: checkAPIC,
+	posapi := &PosAPI{
+		Lib:             lib,
+		checkAPIC:       checkAPIC,
+		getInformationC: getInformationC,
+		callFunctionC:   callFunctionC,
+		putC:            putC,
+		returnBillC:     returnBillC,
+		sendDataC:       sendDataC,
 	}
-
-	fmt.Println(o.checkAPI())
+	return posapi, nil
 }
 
-func (s *PosAPI) checkAPI() string {
-	r := s.checkAPIC()
-	fmt.Println("working", r)
+func (p *PosAPI) CheckAPI() string {
+	r := p.checkAPIC()
 	result := C.GoString(r)
 	return result
+}
+func (p *PosAPI) GetInformation() string {
+	return ""
+}
+func (p *PosAPI) CallFunction(function string, params string) string {
+	return ""
+}
+func (p *PosAPI) Put(params string) string {
+	return ""
+
+}
+func (p *PosAPI) ReturnBill(params string) string {
+	return ""
+}
+
+func (p *PosAPI) SendData(params string) string {
+	return ""
 }
