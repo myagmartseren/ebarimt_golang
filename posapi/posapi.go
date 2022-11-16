@@ -10,6 +10,7 @@ import (
 )
 
 import (
+	"encoding/json"
 	"fmt"
 	"sync"
 	"unsafe"
@@ -28,9 +29,12 @@ type PosAPI struct {
 	mux             sync.Mutex
 }
 
-func Open() (*PosAPI, error) {
-
-	lib, err := dl.Open("./libPosAPI.so", dl.RTLD_LAZY)
+func Open(path ...string) (*PosAPI, error) {
+	so_path := "libPosAPI.so"
+	if len(path) > 0 {
+		so_path = path[0]
+	}
+	lib, err := dl.Open(so_path, dl.RTLD_LAZY)
 	if err != nil {
 		fmt.Println("err", err.Error())
 		return nil, err
@@ -68,21 +72,30 @@ func Open() (*PosAPI, error) {
 func (p *PosAPI) Close() {
 	p.Lib.Close()
 }
-func (p *PosAPI) CheckAPI() string {
+func (p *PosAPI) CheckAPI() (*APIOutput, error) {
 	cResult := p.checkAPIC()
 	defer C.free(unsafe.Pointer(cResult))
-	result := C.GoString(cResult)
-	return result
+
+	var response APIOutput
+	if err := json.Unmarshal([]byte(C.GoString(cResult)), &response); err != nil {
+		return nil, err
+	}
+	return &response, nil
 }
 
-func (p *PosAPI) GetInformation() string {
+func (p *PosAPI) GetInformation() (*InformationOutput, error) {
+	var response InformationOutput
 	cResult := p.getInformationC()
 	defer C.free(unsafe.Pointer(cResult))
-	result := C.GoString(cResult)
-	return result
+
+	if err := json.Unmarshal([]byte(C.GoString(cResult)), &response); err != nil {
+		return nil, err
+	}
+	return &response, nil
 }
 
 func (p *PosAPI) CallFunction(function string, params string) string {
+	//  var response
 	cParams := C.CString(params)
 	defer C.free(unsafe.Pointer(cParams))
 
@@ -90,38 +103,50 @@ func (p *PosAPI) CallFunction(function string, params string) string {
 	defer C.free(unsafe.Pointer(cFunction))
 
 	cResult := p.callFunctionC(cFunction, cParams)
-	defer C.free(unsafe.Pointer(&cResult))
+	defer C.free(unsafe.Pointer(cResult))
 
 	result := C.GoString(cResult)
 
 	return result
 }
 
-func (p *PosAPI) Put(params string) string {
+func (p *PosAPI) Put(params string) (*PutOutput, error) {
+	var response PutOutput
 	cParams := C.CString(params)
 	defer C.free(unsafe.Pointer(cParams))
 
 	cResult := p.putC(cParams)
 	defer C.free(unsafe.Pointer(cParams))
+	if err := json.Unmarshal([]byte(C.GoString(cResult)), &response); err != nil {
+		return nil, err
+	}
 
-	result := C.GoString(cResult)
-	return result
+	return &response, nil
 }
 
-func (p *PosAPI) ReturnBill(params string) string {
+func (p *PosAPI) ReturnBill(params string) (*BillOutput, error) {
 	cParams := C.CString(params)
 	defer C.free(unsafe.Pointer(cParams))
 
 	cResult := p.returnBillC(cParams)
 	defer C.free(unsafe.Pointer(cParams))
+	var response BillOutput
 
-	result := C.GoString(cResult)
-	return result
+	if err := json.Unmarshal([]byte(C.GoString(cResult)), &response); err != nil {
+		return nil, err
+	}
+
+	return &response, nil
 }
 
-func (p *PosAPI) SendData() string {
+func (p *PosAPI) SendData() (*DataOutput, error) {
+	var response DataOutput
 	cResult := p.sendDataC()
 	defer C.free(unsafe.Pointer(cResult))
-	result := C.GoString(cResult)
-	return result
+
+	if err := json.Unmarshal([]byte(C.GoString(cResult)), &response); err != nil {
+		return nil, err
+	}
+
+	return &response, nil
 }
