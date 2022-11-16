@@ -1,6 +1,8 @@
-package ebarimt
+package posapi
 
 /*
+#include <stdio.h>
+#include <errno.h>
 #include <stdlib.h>
 */
 import (
@@ -10,6 +12,7 @@ import (
 import (
 	"fmt"
 	"sync"
+	"unsafe"
 
 	"github.com/peakdot/dl"
 )
@@ -25,15 +28,16 @@ type PosAPI struct {
 	mux             sync.Mutex
 }
 
-func Init() (*PosAPI, error) {
-	lib, err := dl.Open("libssl.so.1.0.0", dl.RTLD_LAZY)
+func Open() (*PosAPI, error) {
+
+	lib, err := dl.Open("./libPosAPI.so", dl.RTLD_LAZY)
 	if err != nil {
 		fmt.Println("err", err.Error())
 		return nil, err
 	}
 
 	var checkAPIC func() *C.char
-	lib.Sym("checkAPI", &checkAPIC)
+	lib.Sym("checkApi", &checkAPIC)
 
 	var getInformationC func() *C.char
 	lib.Sym("getInformation", &getInformationC)
@@ -50,7 +54,7 @@ func Init() (*PosAPI, error) {
 	var sendDataC func() *C.char
 	lib.Sym("sendData", &sendDataC)
 
-	posapi := &PosAPI{
+	return &PosAPI{
 		Lib:             lib,
 		checkAPIC:       checkAPIC,
 		getInformationC: getInformationC,
@@ -58,29 +62,66 @@ func Init() (*PosAPI, error) {
 		putC:            putC,
 		returnBillC:     returnBillC,
 		sendDataC:       sendDataC,
-	}
-	return posapi, nil
+	}, nil
 }
 
+func (p *PosAPI) Close() {
+	p.Lib.Close()
+}
 func (p *PosAPI) CheckAPI() string {
-	r := p.checkAPIC()
-	result := C.GoString(r)
+	cResult := p.checkAPIC()
+	defer C.free(unsafe.Pointer(cResult))
+	result := C.GoString(cResult)
 	return result
 }
+
 func (p *PosAPI) GetInformation() string {
-	return ""
+	cResult := p.getInformationC()
+	defer C.free(unsafe.Pointer(cResult))
+	result := C.GoString(cResult)
+	return result
 }
+
 func (p *PosAPI) CallFunction(function string, params string) string {
-	return ""
+	cParams := C.CString(params)
+	defer C.free(unsafe.Pointer(cParams))
+
+	cFunction := C.CString(function)
+	defer C.free(unsafe.Pointer(cFunction))
+
+	cResult := p.callFunctionC(cFunction, cParams)
+	defer C.free(unsafe.Pointer(&cResult))
+
+	result := C.GoString(cResult)
+
+	return result
 }
+
 func (p *PosAPI) Put(params string) string {
-	return ""
+	cParams := C.CString(params)
+	defer C.free(unsafe.Pointer(cParams))
 
+	cResult := p.putC(cParams)
+	defer C.free(unsafe.Pointer(cParams))
+
+	result := C.GoString(cResult)
+	return result
 }
+
 func (p *PosAPI) ReturnBill(params string) string {
-	return ""
+	cParams := C.CString(params)
+	defer C.free(unsafe.Pointer(cParams))
+
+	cResult := p.returnBillC(cParams)
+	defer C.free(unsafe.Pointer(cParams))
+
+	result := C.GoString(cResult)
+	return result
 }
 
-func (p *PosAPI) SendData(params string) string {
-	return ""
+func (p *PosAPI) SendData() string {
+	cResult := p.sendDataC()
+	defer C.free(unsafe.Pointer(cResult))
+	result := C.GoString(cResult)
+	return result
 }
