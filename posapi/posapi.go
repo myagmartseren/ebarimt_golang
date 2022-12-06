@@ -30,7 +30,7 @@ type PosAPI struct {
 }
 
 func Open(path ...string) (*PosAPI, error) {
-	so_path := "libPosAPI.so"
+	so_path := "/usr/lib/libPosAPI.so"
 	if len(path) > 0 {
 		so_path = path[0]
 	}
@@ -41,7 +41,10 @@ func Open(path ...string) (*PosAPI, error) {
 	}
 
 	var checkAPIC func() *C.char
-	lib.Sym("checkApi", &checkAPIC)
+	if err := lib.Sym("checkApi", &checkAPIC); err != nil {
+		fmt.Print(err)
+		return nil, err
+	}
 
 	var getInformationC func() *C.char
 	lib.Sym("getInformation", &getInformationC)
