@@ -5,55 +5,27 @@ import "C"
 import (
 	"fmt"
 
-	"github.com/myagmartseren/posapi_golang/posapi"
+	"github.com/sbinet/go-python"
 )
 
 func main() {
+	python.Initialize()
+	defer python.Finalize()
 
-	// export_name := "checkApi"
-	// lib_path := "/usr/lib/libPosAPI.so"
-
-	// //Loading .so
-	// handle := C.dlopen(C.CString(lib_path), C.RTLD_LAZY)
-	// if handle == nil {
-	// 	fmt.Println(lib_path + ":\tNOT FOUND")
-	// 	return
-	// } else {
-	// 	fmt.Println(lib_path + ":\tSUCCESS")
-	// }
-
-	// //looking for function address
-	// func_pointer := C.dlsym(handle, C.CString(export_name))
-	// if func_pointer == nil {
-	// 	fmt.Println(export_name + ":\tNOT FOUND")
-	// 	return
-	// } else {
-	// 	fmt.Println(export_name+":\t", func_pointer)
-	// }
-
-	// fmt.Printf("%f", C.checkApi(func_pointer, 1))
-
-	posapi, err := posapi.Open()
-	if err != nil {
-		fmt.Println(err.Error())
-		return
+	fooModule := python.PyImport_ImportModule("posapi")
+	if fooModule == nil {
+		panic("Error importing module")
 	}
-	// defer posapi.Close()
-	// fmt.Println("response ", posapi.SendData())
 
-	// fmt.Println("response ", posapi.CheckAPI())
-	api, err := posapi.CheckAPI()
-	if err != nil {
-		fmt.Println(err)
-		return
+	helloFunc := fooModule.GetAttrString("PosApi")
+	if helloFunc == nil {
+		panic("Error importing function")
 	}
-	fmt.Print(api)
 
-	// fmt.Println("response ", posapi.CallFunction("regNo", "АА00112233"))
-	// info, err := posapi.GetInformation()
-	// if err != nil {
-	// 	fmt.Println(err.Error())
-	// 	return
-	// }
-	// fmt.Println("response", info.ExtraInfo.CountLottery)
+	// The Python function takes no params but when using the C api
+	// we're required to send (empty) *args and **kwargs anyways.
+	helloFunc.CallObject(python.PyDict_New())
+
+	test := helloFunc.CallMethod("checkApi")
+	fmt.Print(test)
 }
