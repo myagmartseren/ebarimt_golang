@@ -1,0 +1,6 @@
+.vs
+.vscode
+
+data
+poslib
+__pycache__

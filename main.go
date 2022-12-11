@@ -8,24 +8,34 @@ import (
 	"github.com/sbinet/go-python"
 )
 
+func init() {
+	err := python.Initialize()
+	if err != nil {
+		panic(err.Error())
+	}
+}
+
 func main() {
 	python.Initialize()
 	defer python.Finalize()
 
-	fooModule := python.PyImport_ImportModule("posapi")
-	if fooModule == nil {
+	posapi := python.PyImport_ImportModule("posapi")
+	if posapi == nil {
 		panic("Error importing module")
 	}
-
-	helloFunc := fooModule.GetAttrString("PosApi")
-	if helloFunc == nil {
-		panic("Error importing function")
+	posapi_obj := posapi.GetAttrString("PosApi")
+	if posapi_obj == nil {
+		panic("could not retrieve 'posapi.PosApi'")
 	}
+	out := posapi_obj.CallMethodObjArgs("checkApi")
+	if out == nil {
+		panic("could not dump checkApi")
+	}
+	fmt.Printf(" = %q\n",
+		python.PyString_AsString(out),
+	)
 
-	// The Python function takes no params but when using the C api
-	// we're required to send (empty) *args and **kwargs anyways.
-	helloFunc.CallObject(python.PyDict_New())
-
-	test := helloFunc.CallMethod("checkApi")
-	fmt.Print(test)
+	fmt.Printf("cPickle.loads(%q) =\n",
+		python.PyString_AsString(out),
+	)
 }
