@@ -42,3 +42,8 @@ class PosApi:
     def sendData(self):
         res = self.API.sendData()
         return res
+
+if __name__ == "__main__":
+    print("working main")
+    temp = PosApi()
+    print(temp.checkApi())
