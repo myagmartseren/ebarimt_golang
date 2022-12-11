@@ -43,7 +43,7 @@ func (p *PosAPI) GetInformation() (*InformationOutput, error) {
 	defer resp.Body.Close()
 
 	var output InformationOutput
-	if err := json.NewDecoder(resp.Body).Decode(&ouput); err != nil {
+	if err := json.NewDecoder(resp.Body).Decode(&output); err != nil {
 		return nil, err
 	}
 
@@ -119,5 +119,4 @@ func (p *PosAPI) SendData() (*DataOutput, error) {
 		return nil, err
 	}
 	return &ouput, nil
-
 }
