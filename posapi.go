@@ -2,26 +2,29 @@ package main
 
 import "C"
 
-func init() {
+type PosApi struct {
+	URL string
+}
+
+func Init(url ...string) {
+}
+
+func (p *PosApi) checkApi() {
 
 }
 
-func checkApi() {
+func (p *PosApi) GetInformation() {
 
 }
-
-func GetInformation() {
-
-}
-func callFunction() {
+func (p *PosApi) callFunction() {
 
 }
-func Put() {
+func (p *PosApi) Put() {
 
 }
-func ReturnBill() {
+func (p *PosApi) ReturnBill() {
 
 }
-func SendData() {
+func (p *PosApi) SendData() {
 
 }
