@@ -21,7 +21,7 @@ func Init(url ...string) *PosAPI {
 
 }
 
-func (p *PosAPI) checkApi() (*APIOutput, error) {
+func (p *PosAPI) CheckApi() (*APIOutput, error) {
 	resp, err := http.Get(p.URL + "/checkApi")
 	if err != nil {
 		return nil, err
