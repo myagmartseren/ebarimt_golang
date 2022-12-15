@@ -1,52 +1,20 @@
 package main
 
-import "C"
-
 import (
 	"fmt"
-	"log"
 
-	"github.com/sbinet/go-python"
+	"github.com/myagmartseren/posapi_golang/ebarimt"
 )
 
 func main() {
-	python.Initialize()
-	defer python.Finalize()
-
-	posApiModule := python.PyImport_ImportModule("posapi")
-	if posApiModule == nil {
-		panic("Error importing module")
+	temp, err := ebarimt.Init()
+	if err != nil {
+		panic(err)
 	}
-
-	obj := posApiModule.GetAttrString("PosApi")
-	if obj == nil {
-		panic("Error importing obj")
+	result, err := temp.CallFunction("regNo", "АА00112233")
+	if err != nil {
+		fmt.Println("panic at result")
+		panic(err)
 	}
-	fmt.Println(obj.Check_Callable())
-	out1 := obj.CallFunction()
-	if out1 == nil {
-		log.Fatalf("error calling obj\n")
-	}
-	fmt.Println("out1", out1)
-	checkApi := out1.GetAttrString("checkApi")
-	if checkApi == nil {
-		panic("could bind checkapi")
-	}
-
-	fmt.Println(checkApi)
-	out := checkApi.CallFunction()
-	if out == nil {
-		log.Fatalf("error calling checkApi()\n")
-	}
-
-	fmt.Printf("posApi.checkApi() = %q\n",
-		python.PyString_AsString(out),
-	)
-
-	// The Python function takes no params but when using the C api
-	// we're required to send (empty) *args and **kwargs anyways.
-	// helloFunc.CallObject(python.PyDict_New())
-
-	// test := helloFunc.CallMethod("checkApi")
-	// fmt.Print(test)
+	fmt.Println(result)
 }

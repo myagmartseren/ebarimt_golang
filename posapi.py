@@ -44,6 +44,5 @@ class PosApi:
         return res
 
 if __name__ == "__main__":
-    print("working main")
     temp = PosApi()
-    print(temp.checkApi())
+    print(temp.callFunction("regNo","АА00112233"))
