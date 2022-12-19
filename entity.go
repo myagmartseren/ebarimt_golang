@@ -1,4 +1,4 @@
-package posapi
+package ebarimt
 
 type APIOutput struct {
 	Success  bool `json:"success"`

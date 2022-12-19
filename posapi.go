@@ -1,4 +1,4 @@
-package posapi
+package ebarimt
 
 /*
 #include <stdio.h>
@@ -19,18 +19,18 @@ import (
 )
 
 type PosAPI struct {
-	Lib             *dl.DL
-	checkAPIC       func() *C.char
-	getInformationC func() *C.char
-	callFunctionC   func(function *C.char, params *C.char) *C.char
-	putC            func(params *C.char) *C.char
-	returnBillC     func(params *C.char) *C.char
-	sendDataC       func() *C.char
-	mux             sync.Mutex
+	Lib            *dl.DL
+	checkAPI       func() *C.char
+	getInformation func() *C.char
+	callFunction   func(function *C.char, params *C.char) *C.char
+	put            func(params *C.char) *C.char
+	returnBill     func(params *C.char) *C.char
+	sendData       func() *C.char
+	mux            sync.Mutex
 }
 
 func Open(path ...string) (*PosAPI, error) {
-	so_path := "libPosAPI.so"
+	so_path := "/usr/lib/libPosAPI.so"
 	if len(path) > 0 {
 		so_path = path[0]
 	}
@@ -59,13 +59,13 @@ func Open(path ...string) (*PosAPI, error) {
 	lib.Sym("sendData", &sendDataC)
 
 	return &PosAPI{
-		Lib:             lib,
-		checkAPIC:       checkAPIC,
-		getInformationC: getInformationC,
-		callFunctionC:   callFunctionC,
-		putC:            putC,
-		returnBillC:     returnBillC,
-		sendDataC:       sendDataC,
+		Lib:            lib,
+		checkAPI:       checkAPIC,
+		getInformation: getInformationC,
+		callFunction:   callFunctionC,
+		put:            putC,
+		returnBill:     returnBillC,
+		sendData:       sendDataC,
 	}, nil
 }
 
@@ -73,7 +73,7 @@ func (p *PosAPI) Close() {
 	p.Lib.Close()
 }
 func (p *PosAPI) CheckAPI() (*APIOutput, error) {
-	cResult := p.checkAPIC()
+	cResult := p.checkAPI()
 	defer C.free(unsafe.Pointer(cResult))
 
 	var response APIOutput
@@ -85,7 +85,7 @@ func (p *PosAPI) CheckAPI() (*APIOutput, error) {
 
 func (p *PosAPI) GetInformation() (*InformationOutput, error) {
 	var response InformationOutput
-	cResult := p.getInformationC()
+	cResult := p.getInformation()
 	defer C.free(unsafe.Pointer(cResult))
 
 	if err := json.Unmarshal([]byte(C.GoString(cResult)), &response); err != nil {
@@ -102,7 +102,7 @@ func (p *PosAPI) CallFunction(function string, params string) string {
 	cFunction := C.CString(function)
 	defer C.free(unsafe.Pointer(cFunction))
 
-	cResult := p.callFunctionC(cFunction, cParams)
+	cResult := p.callFunction(cFunction, cParams)
 	defer C.free(unsafe.Pointer(cResult))
 
 	result := C.GoString(cResult)
@@ -115,7 +115,7 @@ func (p *PosAPI) Put(params string) (*PutOutput, error) {
 	cParams := C.CString(params)
 	defer C.free(unsafe.Pointer(cParams))
 
-	cResult := p.putC(cParams)
+	cResult := p.put(cParams)
 	defer C.free(unsafe.Pointer(cParams))
 	if err := json.Unmarshal([]byte(C.GoString(cResult)), &response); err != nil {
 		return nil, err
@@ -128,7 +128,7 @@ func (p *PosAPI) ReturnBill(params string) (*BillOutput, error) {
 	cParams := C.CString(params)
 	defer C.free(unsafe.Pointer(cParams))
 
-	cResult := p.returnBillC(cParams)
+	cResult := p.returnBill(cParams)
 	defer C.free(unsafe.Pointer(cParams))
 	var response BillOutput
 
@@ -141,7 +141,7 @@ func (p *PosAPI) ReturnBill(params string) (*BillOutput, error) {
 
 func (p *PosAPI) SendData() (*DataOutput, error) {
 	var response DataOutput
-	cResult := p.sendDataC()
+	cResult := p.sendData()
 	defer C.free(unsafe.Pointer(cResult))
 
 	if err := json.Unmarshal([]byte(C.GoString(cResult)), &response); err != nil {
