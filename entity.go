@@ -47,6 +47,8 @@ type PutOutput struct {
 	BranchNo         string             `json:"branchNo"`
 	Stocks           []Stocks           `json:"stocks"`
 	BankTransactions []bankTransactions `json:"bankTransactions"`
+	ErrorCode        int                `json:"errorCode"`
+	Message          string             `json:"message"`
 }
 
 type PutInput struct {
