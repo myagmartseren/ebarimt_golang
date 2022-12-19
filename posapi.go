@@ -62,7 +62,7 @@ func (p *PosAPI) GetInformation() (*InformationOutput, error) {
 	return &output, nil
 }
 
-func (p *PosAPI) callFunction(function, params string) (interface{}, error) {
+func (p *PosAPI) CallFunction(function, params string) (interface{}, error) {
 	data, err := json.Marshal(map[string]string{
 		"functionName": function,
 		"data":         params,
