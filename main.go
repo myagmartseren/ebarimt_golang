@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	posapi, err := posapi.Open()
+	posapi, err := posapi.Open("/home/myagmartseren/Downloads/5250/x64/libPosAPI.so")
 	if err != nil {
 		fmt.Println(err.Error())
 		return
