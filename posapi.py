@@ -1,5 +1,5 @@
 import ctypes
-
+import json
 DEFAULT_LIB = "libPosAPI"
 LIB_DIR = "/usr/lib/{}.so"
 
@@ -43,6 +43,55 @@ class PosApi:
         res = self.API.sendData()
         return res
 
+
 if __name__ == "__main__":
     temp = PosApi()
-    print(temp.callFunction("regNo","АА00112233"))
+    print("checkApi:\t", json.loads(temp.checkApi()))
+    print("getInformation:\t", json.loads(temp.getInformation()))
+
+    print("call function:\t", json.loads(temp.callFunction("regNo","ЙЮ01312715")))
+    test = "000000004012345678901234567890"
+    print(test,len(test))
+    returnbill_input = json.dumps({
+        "returnBillId": test,
+        "date": "2022-12-13 11:22:22"})
+    result = temp.returnBill(returnbill_input.encode("ascii"))
+    print("return bill:\t", json.loads(result))
+    result = temp.sendData()
+    print("sendata:\t", json.loads(result))
+    req = temp.put(json.dumps({
+        "amount": "100000",
+        "vat": "100",
+        "cashAmount": "100000",
+        "nonCashAmount": "100000",
+        "cityTax": "",
+        "districtCode": "1",
+        "posNo": "12345",
+        "returnBillId": "111111111111111111111111111111111",
+        "invoiceId": "111111111111111111111111111111111",
+        "reportMonth": "2022-12",
+        "branchNo": "333",
+        "stocks": [
+            {
+                "code": "test ym aa",
+                "name": "test123",
+                "measureUnit": "unit",
+                "qty": "12",
+                "unitPrice": "12",
+                "totalAmount": "12",
+                "cityTax": "12",
+                "vat": "12",
+                "barCode": "235"
+            }
+        ],
+        "bankTransactions": [
+            {
+                "rrn": "111111111111",
+                "bankId": "01",
+                "terminalId": "asd123",
+                "approvalCode": "123456abcdef",
+                "amount": "12"
+            }
+        ]}).encode("ascii"))
+
+    print("put:\t\t", json.loads(req))

@@ -29,7 +29,7 @@ type InformationOutput struct {
 	} `json:"extraInfo"`
 }
 
-type PutOutput struct {
+type PutInput struct {
 	Amount           string             `json:"amount"`
 	Vat              string             `json:"vat"`
 	CashAmount       string             `json:"cashAmount"`
@@ -49,7 +49,7 @@ type PutOutput struct {
 	BankTransactions []bankTransactions `json:"bankTransactions"`
 }
 
-type PutInput struct {
+type PutOutput struct {
 	Success           bool   `json:"success"`
 	RegisterNo        string `json:"registerNo"`
 	BillID            string `json:"billId"`
@@ -60,6 +60,8 @@ type PutInput struct {
 	QRData            string `json:"qrData"`
 	Lottery           string `json:"lottery"`
 	LotteryWarningMsg string `json:"lotteryWarningMsg"`
+	ErrorCode         string `json:"errorCode"`
+	Message           string `json:"message"`
 }
 
 type Stocks struct {
