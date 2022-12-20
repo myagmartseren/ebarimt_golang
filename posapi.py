@@ -49,8 +49,9 @@ if __name__ == "__main__":
     print("checkApi:\t", json.loads(temp.checkApi()))
     print("getInformation:\t", json.loads(temp.getInformation()))
 
-    print("call function:\t", json.loads(temp.callFunction("regNo","ЙЮ01312715")))
-    test = "000000004012345678901234567890"
+    callfunc = json.dumps({"funcName":"regNo"})
+    print("call function:\t", json.loads(temp.callFunction(callfunc,"aa12345678")))
+    test = "0000000000380000000000"
     print(test,len(test))
     returnbill_input = json.dumps({
         "returnBillId": test,
@@ -60,15 +61,15 @@ if __name__ == "__main__":
     result = temp.sendData()
     print("sendata:\t", json.loads(result))
     req = temp.put(json.dumps({
-        "amount": "100000",
-        "vat": "100",
-        "cashAmount": "100000",
-        "nonCashAmount": "100000",
-        "cityTax": "",
-        "districtCode": "1",
+        "amount": "100000.00",
+        "vat": "100000.00",
+        "cashAmount": "100000.00",
+        "nonCashAmount": "0.00",
+        "cityTax": "0.00",
+        "districtCode": "24",
         "posNo": "12345",
-        "returnBillId": "111111111111111111111111111111111",
-        "invoiceId": "111111111111111111111111111111111",
+        # "returnBillId": test,
+        # "invoiceId": test,
         "reportMonth": "2022-12",
         "branchNo": "333",
         "stocks": [
@@ -90,7 +91,7 @@ if __name__ == "__main__":
                 "bankId": "01",
                 "terminalId": "asd123",
                 "approvalCode": "123456abcdef",
-                "amount": "12"
+                "amount": "0"
             }
         ]}).encode("ascii"))
 
